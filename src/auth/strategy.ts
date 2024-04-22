@@ -3,6 +3,8 @@ import {inject} from '@loopback/core';
 import {HttpErrors, Request} from '@loopback/rest';
 import {UserProfile} from '@loopback/security';
 import parseBearerToken from 'parse-bearer-token';
+import {ConfiguracionSeguridad} from '../config/configuracion.seguridad';
+const fetch = require('node-fetch');
 
 export class AuthStrategy implements AuthenticationStrategy {
   name: string = 'auth';
@@ -25,17 +27,29 @@ export class AuthStrategy implements AuthenticationStrategy {
       let idMenu: string = this.metadata[0].options![0];
       let accion: string = this.metadata[0].options![1];
       console.log(this.metadata);
-      // Conectar con el microservicio de Seguridad
-      console.log("Conectar con el microservicio de Seguridad")
 
-      let continuar: boolean = false;
-      if(continuar) {
-        let perfil: UserProfile = Object.assign({
-          permitido: "OK"
+      const datos = {token: token, idMenu: idMenu, accion: accion};
+      const urlValidarPermisos = `${ConfiguracionSeguridad.enlaceMicroservicioSeguridad}/validad-permisos`;
+      let res = undefined;
+      try {
+        fetch(urlValidarPermisos, {
+          method: 'post',
+          body:    JSON.stringify(datos),
+          headers: { 'Content-Type': 'application/json'},
+        }).then((res: any) => res.json())
+          .then((json: any) => {
+            res = json;
         });
-        return perfil;
-      } else {
-        return undefined;
+        if(res) {
+          let perfil: UserProfile = Object.assign({
+            permitido: "OK"
+          });
+          return perfil;
+        } else {
+          return undefined;
+        }
+      } catch(e) {
+        throw new HttpErrors[401]("No se tienen permisos sobre la acción a ejecutar.");
       }
     }
     throw new HttpErrors[401]("No es posible ejecutar la acción por falta de un token.");
