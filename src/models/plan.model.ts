@@ -36,6 +36,12 @@ export class Plan extends Entity {
     type: 'string',
     required: true,
   })
+  valorPlan: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
   estado: string;
 
   @hasMany(() => Cliente, {through: {model: () => ClientePlan}})

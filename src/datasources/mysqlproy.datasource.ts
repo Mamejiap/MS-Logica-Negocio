@@ -5,10 +5,10 @@ const config = {
   name: 'mysqlproy',
   connector: 'mysql',
   url: '',
-  host: 'mysqlproy.cv0y26mcgzqq.us-east-1.rds.amazonaws.com',
+  host: 'mysqlaws.c304moqwyl1q.us-east-1.rds.amazonaws.com',
   port: 3306,
   user: 'admin',
-  password: 's71XcdsB7n',
+  password: 'Admin12345',
   database: 'funerariaDB'
 };
 
