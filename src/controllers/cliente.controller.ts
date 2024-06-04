@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -7,17 +8,18 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
-import {Cliente} from '../models';
+import {ConfiguracionSeguridad} from '../config/configuracion.seguridad';
+import {Cliente, PaginadorCliente} from '../models';
 import {ClienteRepository} from '../repositories';
 
 export class ClienteController {
@@ -25,6 +27,11 @@ export class ClienteController {
     @repository(ClienteRepository)
     public clienteRepository : ClienteRepository,
   ) {}
+
+  @authenticate({
+    strategy: "auth",
+    options: [ConfiguracionSeguridad.menuClienteId, ConfiguracionSeguridad.guardarAccion]
+  })
 
   @post('/cliente')
   @response(200, {
@@ -58,6 +65,11 @@ export class ClienteController {
     return this.clienteRepository.count(where);
   }
 
+  @authenticate({
+    strategy: "auth",
+    options: [ConfiguracionSeguridad.menuClienteId, ConfiguracionSeguridad.listarAccion]
+  })
+
   @get('/cliente')
   @response(200, {
     description: 'Array of Cliente model instances',
@@ -65,15 +77,27 @@ export class ClienteController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(Cliente, {includeRelations: true}),
+          items: getModelSchemaRef(PaginadorCliente, {includeRelations: true}),
         },
       },
     },
   })
   async find(
     @param.filter(Cliente) filter?: Filter<Cliente>,
-  ): Promise<Cliente[]> {
-    return this.clienteRepository.find(filter);
+  ): Promise<PaginadorCliente> {
+    let total: number = (await this.clienteRepository.count()).count;
+    let registros: Cliente[] = await this.clienteRepository.find(filter);
+    let respuesta: PaginadorCliente = {
+      registros: registros,
+      totalRegistros: total,
+      toJSON: function() {
+        return this.toJSON();
+      },
+      toObject: function() {
+        return this.toObject();
+      }
+    };
+    return respuesta;
   }
 
   @patch('/cliente')

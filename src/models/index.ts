@@ -15,3 +15,4 @@ export * from './pago.model';
 export * from './metodo-pago.model';
 export * from './resenas.model';
 export * from './pqrs.model';
+export * from './paginador-cliente.model';

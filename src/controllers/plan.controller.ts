@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -7,16 +8,17 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
+import {ConfiguracionSeguridad} from '../config/configuracion.seguridad';
 import {Plan} from '../models';
 import {PlanRepository} from '../repositories';
 
@@ -25,6 +27,11 @@ export class PlanController {
     @repository(PlanRepository)
     public planRepository : PlanRepository,
   ) {}
+
+  @authenticate({
+    strategy: "auth",
+    options: [ConfiguracionSeguridad.menuServicioId, ConfiguracionSeguridad.guardarAccion]
+  })
 
   @post('/plan')
   @response(200, {
