@@ -83,6 +83,35 @@ export class PlanController {
     return this.planRepository.find(filter);
   }
 
+  @authenticate({
+    strategy: "auth",
+    options: [ConfiguracionSeguridad.menuServicioId, ConfiguracionSeguridad.listarAccion]
+  })
+
+  @get('/plan-paginado')
+  @response(200, {
+    description: 'Array of Plan model instances',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(Plan, {includeRelations: true}),
+        },
+      },
+    },
+  })
+  async findToPagination(
+    @param.filter(Plan) filter?: Filter<Plan>,
+  ): Promise<object> {
+    const total: number = (await this.planRepository.count()).count;
+    const registros: Plan[] = await this.planRepository.find(filter);
+    const respuesta = {
+      registros: registros,
+      totalRegistros: total,
+    };
+    return respuesta;
+  }
+
   @patch('/plan')
   @response(200, {
     description: 'Plan PATCH success count',
