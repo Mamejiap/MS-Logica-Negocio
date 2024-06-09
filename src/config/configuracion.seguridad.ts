@@ -6,5 +6,5 @@ export namespace ConfiguracionSeguridad {
   export const editarAccion = "Editar";
   export const eliminarAccion = "Eliminar";
   export const descargarAccion = "Descargar";
-  export const enlaceMicroservicioSeguridad: string = "http://localhost:3001";
+  export const enlaceMicroservicioSeguridad: string = "http://localhost:3000";
 }
