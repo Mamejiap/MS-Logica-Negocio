@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -7,17 +8,18 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
-import {Beneficiario} from '../models';
+import {ConfiguracionSeguridad} from '../config/configuracion.seguridad';
+import {Beneficiario, PaginadorBeneficiario} from '../models';
 import {BeneficiarioRepository} from '../repositories';
 
 export class BeneficiarioController {
@@ -25,6 +27,11 @@ export class BeneficiarioController {
     @repository(BeneficiarioRepository)
     public beneficiarioRepository : BeneficiarioRepository,
   ) {}
+
+  @authenticate({
+    strategy: "auth",
+    options: [ConfiguracionSeguridad.menuBeneficiarioId, ConfiguracionSeguridad.guardarAccion]
+  })
 
   @post('/beneficiario')
   @response(200, {
@@ -58,6 +65,11 @@ export class BeneficiarioController {
     return this.beneficiarioRepository.count(where);
   }
 
+  @authenticate({
+    strategy: "auth",
+    options: [ConfiguracionSeguridad.menuBeneficiarioId, ConfiguracionSeguridad.listarAccion]
+  })
+
   @get('/beneficiario')
   @response(200, {
     description: 'Array of Beneficiario model instances',
@@ -65,15 +77,21 @@ export class BeneficiarioController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(Beneficiario, {includeRelations: true}),
+          items: getModelSchemaRef(PaginadorBeneficiario, {includeRelations: true}),
         },
       },
     },
   })
   async find(
     @param.filter(Beneficiario) filter?: Filter<Beneficiario>,
-  ): Promise<Beneficiario[]> {
-    return this.beneficiarioRepository.find(filter);
+  ): Promise<object> {
+    const total: number = (await this.beneficiarioRepository.count()).count;
+    const registros: Beneficiario[] = await this.beneficiarioRepository.find(filter);
+    const respuesta = {
+      registros: registros,
+      totalRegistros: total,
+    };
+    return respuesta;
   }
 
   @patch('/beneficiario')

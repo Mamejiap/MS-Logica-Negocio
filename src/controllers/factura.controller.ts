@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -7,17 +8,18 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
-import {Factura} from '../models';
+import {ConfiguracionSeguridad} from '../config/configuracion.seguridad';
+import {Factura, PaginadorFactura} from '../models';
 import {FacturaRepository} from '../repositories';
 
 export class FacturaController {
@@ -25,6 +27,11 @@ export class FacturaController {
     @repository(FacturaRepository)
     public facturaRepository : FacturaRepository,
   ) {}
+
+  @authenticate({
+    strategy: "auth",
+    options: [ConfiguracionSeguridad.menuFacturaId, ConfiguracionSeguridad.guardarAccion]
+  })
 
   @post('/factura')
   @response(200, {
@@ -58,6 +65,11 @@ export class FacturaController {
     return this.facturaRepository.count(where);
   }
 
+  @authenticate({
+    strategy: "auth",
+    options: [ConfiguracionSeguridad.menuFacturaId, ConfiguracionSeguridad.listarAccion]
+  })
+
   @get('/factura')
   @response(200, {
     description: 'Array of Factura model instances',
@@ -65,15 +77,21 @@ export class FacturaController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(Factura, {includeRelations: true}),
+          items: getModelSchemaRef(PaginadorFactura, {includeRelations: true}),
         },
       },
     },
   })
   async find(
     @param.filter(Factura) filter?: Filter<Factura>,
-  ): Promise<Factura[]> {
-    return this.facturaRepository.find(filter);
+  ): Promise<object> {
+    const total: number = (await this.facturaRepository.count()).count;
+    const registros: Factura[] = await this.facturaRepository.find(filter);
+    const respuesta = {
+      registros: registros,
+      totalRegistros: total,
+    };
+    return respuesta;
   }
 
   @patch('/factura')

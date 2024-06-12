@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -7,17 +8,18 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
-import {Resenas} from '../models';
+import {ConfiguracionSeguridad} from '../config/configuracion.seguridad';
+import {PaginadorResena, Resenas} from '../models';
 import {ResenasRepository} from '../repositories';
 
 export class ResenasController {
@@ -25,6 +27,11 @@ export class ResenasController {
     @repository(ResenasRepository)
     public resenasRepository : ResenasRepository,
   ) {}
+
+  @authenticate({
+    strategy: "auth",
+    options: [ConfiguracionSeguridad.menuResenaId, ConfiguracionSeguridad.guardarAccion]
+  })
 
   @post('/resena')
   @response(200, {
@@ -58,6 +65,11 @@ export class ResenasController {
     return this.resenasRepository.count(where);
   }
 
+  @authenticate({
+    strategy: "auth",
+    options: [ConfiguracionSeguridad.menuResenaId, ConfiguracionSeguridad.listarAccion]
+  })
+
   @get('/resena')
   @response(200, {
     description: 'Array of Resenas model instances',
@@ -65,15 +77,21 @@ export class ResenasController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(Resenas, {includeRelations: true}),
+          items: getModelSchemaRef(PaginadorResena, {includeRelations: true}),
         },
       },
     },
   })
   async find(
     @param.filter(Resenas) filter?: Filter<Resenas>,
-  ): Promise<Resenas[]> {
-    return this.resenasRepository.find(filter);
+  ): Promise<object> {
+    const total: number = (await this.resenasRepository.count()).count;
+    const registros: Resenas[] = await this.resenasRepository.find(filter);
+    const respuesta = {
+      registros: registros,
+      totalRegistros: total,
+    };
+    return respuesta;
   }
 
   @patch('/resena')

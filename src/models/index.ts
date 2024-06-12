@@ -16,3 +16,7 @@ export * from './metodo-pago.model';
 export * from './resenas.model';
 export * from './pqrs.model';
 export * from './paginador-cliente.model';
+export * from './paginador-beneficiario.model';
+export * from './paginador-cliente-plan.model';
+export * from './paginador-factura.model';
+export * from './paginador-resena.model';
