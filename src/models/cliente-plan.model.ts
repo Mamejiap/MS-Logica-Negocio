@@ -1,5 +1,6 @@
-import {Entity, model, property, hasOne} from '@loopback/repository';
+import {Entity, model, property, hasOne, belongsTo} from '@loopback/repository';
 import {Factura} from './factura.model';
+import {Cliente} from './cliente.model';
 
 @model({
   settings: {
@@ -45,12 +46,6 @@ export class ClientePlan extends Entity {
     required: true,
   })
   fechaFin: string;
-
-  @property({
-    type: 'number',
-  })
-  clienteId?: number;
-
   @property({
     type: 'number',
   })
@@ -58,6 +53,9 @@ export class ClientePlan extends Entity {
 
   @hasOne(() => Factura)
   factura: Factura;
+
+  @belongsTo(() => Cliente)
+  clienteId: number;
 
   constructor(data?: Partial<ClientePlan>) {
     super(data);

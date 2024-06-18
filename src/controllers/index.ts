@@ -43,3 +43,4 @@ export * from './resenas.controller';
 export * from './pqrs-2-cliente.controller';
 export * from './cliente-pqrs2.controller';
 export * from './pqrs2.controller';
+export * from './cliente-plan-cliente.controller';
