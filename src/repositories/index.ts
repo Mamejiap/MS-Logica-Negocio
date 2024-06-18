@@ -14,4 +14,4 @@ export * from './sedes-funeraria.repository';
 export * from './servicio-plan.repository';
 export * from './solicitudes.repository';
 export * from './resenas.repository';
-export * from './pqrs.repository';
+export * from './pqrs2.repository';
