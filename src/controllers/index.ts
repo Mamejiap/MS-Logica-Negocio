@@ -40,4 +40,6 @@ export * from './solicitudes.controller';
 export * from './cliente-resenas.controller';
 export * from './resenas-cliente.controller';
 export * from './resenas.controller';
-export * from './pqrs.controller';
+export * from './pqrs-2-cliente.controller';
+export * from './cliente-pqrs2.controller';
+export * from './pqrs2.controller';

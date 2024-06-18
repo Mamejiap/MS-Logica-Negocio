@@ -3,6 +3,7 @@ import {Beneficiario} from './beneficiario.model';
 import {Plan} from './plan.model';
 import {ClientePlan} from './cliente-plan.model';
 import {Resenas} from './resenas.model';
+import {Pqrs2} from './pqrs2.model';
 
 @model()
 export class Cliente extends Entity {
@@ -68,6 +69,9 @@ export class Cliente extends Entity {
 
   @hasMany(() => Resenas)
   resenas: Resenas[];
+
+  @hasMany(() => Pqrs2)
+  pqrs2s: Pqrs2[];
 
   constructor(data?: Partial<Cliente>) {
     super(data);
