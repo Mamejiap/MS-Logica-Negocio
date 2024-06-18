@@ -20,3 +20,5 @@ export * from './paginador-beneficiario.model';
 export * from './paginador-cliente-plan.model';
 export * from './paginador-factura.model';
 export * from './paginador-resena.model';
+export * from './paginador-sala-velacion.model';
+export * from './paginador-sedes-funeraria.model';

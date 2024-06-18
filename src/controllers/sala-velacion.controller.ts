@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -7,24 +8,30 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
-import {SalaVelacion} from '../models';
+import {ConfiguracionSeguridad} from '../config/configuracion.seguridad';
+import {PaginadorSalaVelacion, SalaVelacion} from '../models';
 import {SalaVelacionRepository} from '../repositories';
 
 export class SalaVelacionController {
   constructor(
     @repository(SalaVelacionRepository)
-    public salaVelacionRepository : SalaVelacionRepository,
-  ) {}
+    public salaVelacionRepository: SalaVelacionRepository,
+  ) { }
+
+  @authenticate({
+    strategy: "auth",
+    options: [ConfiguracionSeguridad.menuSalaVelacionId, ConfiguracionSeguridad.guardarAccion]
+  })
 
   @post('/sala-velacion')
   @response(200, {
@@ -65,15 +72,21 @@ export class SalaVelacionController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(SalaVelacion, {includeRelations: true}),
+          items: getModelSchemaRef(PaginadorSalaVelacion, {includeRelations: true}),
         },
       },
     },
   })
   async find(
     @param.filter(SalaVelacion) filter?: Filter<SalaVelacion>,
-  ): Promise<SalaVelacion[]> {
-    return this.salaVelacionRepository.find(filter);
+  ): Promise<object> {
+    const total: number = (await this.salaVelacionRepository.count()).count;
+    const registros: SalaVelacion[] = await this.salaVelacionRepository.find(filter);
+    const respuesta = {
+      registros: registros,
+      totalRegistros: total,
+    };
+    return respuesta;
   }
 
   @patch('/sala-velacion')

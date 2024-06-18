@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -7,24 +8,30 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
-import {SedesFuneraria} from '../models';
+import {ConfiguracionSeguridad} from '../config/configuracion.seguridad';
+import {PaginadorSedesFuneraria, SedesFuneraria} from '../models';
 import {SedesFunerariaRepository} from '../repositories';
 
 export class SedeFunerariaController {
   constructor(
     @repository(SedesFunerariaRepository)
-    public sedesFunerariaRepository : SedesFunerariaRepository,
-  ) {}
+    public sedesFunerariaRepository: SedesFunerariaRepository,
+  ) { }
+
+  @authenticate({
+    strategy: "auth",
+    options: [ConfiguracionSeguridad.menuSedesFunerariaId, ConfiguracionSeguridad.guardarAccion]
+  })
 
   @post('/sede-funeraria')
   @response(200, {
@@ -65,15 +72,21 @@ export class SedeFunerariaController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(SedesFuneraria, {includeRelations: true}),
+          items: getModelSchemaRef(PaginadorSedesFuneraria, {includeRelations: true}),
         },
       },
     },
   })
   async find(
     @param.filter(SedesFuneraria) filter?: Filter<SedesFuneraria>,
-  ): Promise<SedesFuneraria[]> {
-    return this.sedesFunerariaRepository.find(filter);
+  ): Promise<object> {
+    const total: number = (await this.sedesFunerariaRepository.count()).count;
+    const registros: SedesFuneraria[] = await this.sedesFunerariaRepository.find(filter);
+    const respuesta = {
+      registros: registros,
+      totalRegistros: total,
+    };
+    return respuesta;
   }
 
   @patch('/sede-funeraria')
