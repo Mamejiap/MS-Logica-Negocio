@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -7,17 +8,18 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
-import {ServicioPlan} from '../models';
+import {ConfiguracionSeguridad} from '../config/configuracion.seguridad';
+import {PaginadorServicioPlan, ServicioPlan} from '../models';
 import {ServicioPlanRepository} from '../repositories';
 
 export class ServicioPlanController {
@@ -25,6 +27,11 @@ export class ServicioPlanController {
     @repository(ServicioPlanRepository)
     public servicioPlanRepository : ServicioPlanRepository,
   ) {}
+
+  @authenticate({
+    strategy: "auth",
+    options: [ConfiguracionSeguridad.menuServicioPlanId, ConfiguracionSeguridad.guardarAccion]
+  })
 
   @post('/servicio-plan')
   @response(200, {
@@ -58,6 +65,11 @@ export class ServicioPlanController {
     return this.servicioPlanRepository.count(where);
   }
 
+  @authenticate({
+    strategy: "auth",
+    options: [ConfiguracionSeguridad.menuServicioPlanId, ConfiguracionSeguridad.listarAccion]
+  })
+
   @get('/servicio-plan')
   @response(200, {
     description: 'Array of ServicioPlan model instances',
@@ -65,15 +77,21 @@ export class ServicioPlanController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(ServicioPlan, {includeRelations: true}),
+          items: getModelSchemaRef(PaginadorServicioPlan, {includeRelations: true}),
         },
       },
     },
   })
   async find(
     @param.filter(ServicioPlan) filter?: Filter<ServicioPlan>,
-  ): Promise<ServicioPlan[]> {
-    return this.servicioPlanRepository.find(filter);
+  ): Promise<object> {
+    const total: number = (await this.servicioPlanRepository.count()).count;
+    const registros: ServicioPlan[] = await this.servicioPlanRepository.find(filter);
+    const respuesta = {
+      registros: registros,
+      totalRegistros: total,
+    };
+    return respuesta;
   }
 
   @patch('/servicio-plan')

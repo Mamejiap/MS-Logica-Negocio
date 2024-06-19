@@ -19,7 +19,7 @@ import {
   response,
 } from '@loopback/rest';
 import {ConfiguracionSeguridad} from '../config/configuracion.seguridad';
-import {Solicitudes} from '../models';
+import {PaginadorSolicitud, Solicitudes} from '../models';
 import {SolicitudesRepository} from '../repositories';
 
 export class SolicitudesController {
@@ -27,6 +27,11 @@ export class SolicitudesController {
     @repository(SolicitudesRepository)
     public solicitudesRepository : SolicitudesRepository,
   ) {}
+
+  @authenticate({
+    strategy: "auth",
+    options: [ConfiguracionSeguridad.menuSolicitudesId, ConfiguracionSeguridad.guardarAccion]
+  })
 
   @post('/solicitud')
   @response(200, {
@@ -62,7 +67,7 @@ export class SolicitudesController {
 
   @authenticate({
     strategy: "auth",
-    options: [ConfiguracionSeguridad.menuServicioId, ConfiguracionSeguridad.listarAccion]
+    options: [ConfiguracionSeguridad.menuSolicitudesId, ConfiguracionSeguridad.listarAccion]
   })
   @get('/solicitud')
   @response(200, {
@@ -71,15 +76,21 @@ export class SolicitudesController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(Solicitudes, {includeRelations: true}),
+          items: getModelSchemaRef(PaginadorSolicitud, {includeRelations: true}),
         },
       },
     },
   })
   async find(
     @param.filter(Solicitudes) filter?: Filter<Solicitudes>,
-  ): Promise<Solicitudes[]> {
-    return this.solicitudesRepository.find(filter);
+  ): Promise<object> {
+    const total: number = (await this.solicitudesRepository.count()).count;
+    const registros: Solicitudes[] = await this.solicitudesRepository.find(filter);
+    const respuesta = {
+      registros: registros,
+      totalRegistros: total,
+    };
+    return respuesta;
   }
 
   @patch('/solicitud')

@@ -7,6 +7,8 @@ export namespace ConfiguracionSeguridad {
   export const menuResenaId = "6669f4d9054f4b98c23e60ba";
   export const menuSalaVelacionId = "6670d7ae6a4dd9f3a09e228c";
   export const menuSedesFunerariaId = "6670da7c6a4dd9f3a09e228d";
+  export const menuServicioPlanId = "6672590f4e511f702dd4cc1c";
+  export const menuSolicitudesId = "6672594d4e511f702dd4cc1d";
   export const listarAccion = "Listar";
   export const guardarAccion = "Guardar";
   export const editarAccion = "Editar";

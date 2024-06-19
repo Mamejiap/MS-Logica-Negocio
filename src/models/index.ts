@@ -23,3 +23,5 @@ export * from './sedes-funeraria.model';
 export * from './servicio-plan.model';
 export * from './solicitudes.model';
 
+export * from './paginador-servicio-plan.model';
+export * from './paginador-solicitud.model';
